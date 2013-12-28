@@ -3,4 +3,6 @@
 
 void SayHi();
 
+void Add(const float *A, const float *B, float *C, int size);
+
 #endif  // TEST_CUDA_MYLIB_H_
