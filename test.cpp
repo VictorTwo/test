@@ -12,8 +12,8 @@ int main(int argc, char *argv[]) {
   SayHi();
   
   const int size = 4;
-  float A[] = {1.0f, 2.0f, 3.0f, 4.0f};
-  float B[] = {2.0f, 3.0f, 4.0f, 5.0f};
+  float A[size] = {1.0f, 2.0f, 3.0f, 4.0f};
+  float B[size] = {2.0f, 3.0f, 4.0f, 5.0f};
   float C[size];
   
   // CUDA add

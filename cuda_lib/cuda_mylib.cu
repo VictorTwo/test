@@ -7,13 +7,12 @@ void SayHi() {
 }
 
 // CUDA device code
-__global__ void
-vectorAdd(const float *A, const float *B, float *C, int size) {
-    int i = 1;//blockDim.x * blockIdx.x + threadIdx.x;
-
-    //if (i <= size) {
-        C[i] = 0;//size;//A[i] + B[i];
-    //}
+__global__ void 
+vectorAdd(float* A, float* B, float* C, int size) {
+    int i = blockIdx.x * blockDim.x  + threadIdx.x; 
+    if (i < size) {
+        C[i] = A[i] + B[i];
+    }
 }
 
 void CheckCUDAError(const cudaError_t& err) {
@@ -34,25 +33,25 @@ void Add(const float *A, const float *B, float *C, int size) {
   
   // Allocate the device input vector A
   float *d_A = NULL;
-  err = cudaMalloc((void **)&d_A, size);
+  err = cudaMalloc((void **)&d_A, size*sizeof(float));
   CheckCUDAError(err);
 
   // Allocate the device input vector B
   float *d_B = NULL;
-  err = cudaMalloc((void **)&d_B, size);
+  err = cudaMalloc((void **)&d_B, size*sizeof(float));
   CheckCUDAError(err);
 
   // Allocate the device output vector C
   float *d_C = NULL;
-  err = cudaMalloc((void **)&d_C, size);
+  err = cudaMalloc((void **)&d_C, size*sizeof(float));
   CheckCUDAError(err);
   
   printf("Copy input data from the host memory to the CUDA device\n");
-  err = cudaMemcpy(d_A, A, size, cudaMemcpyHostToDevice);
+  err = cudaMemcpy(d_A, A, size * sizeof(float), cudaMemcpyHostToDevice);
   CheckCUDAError(err);
-  err = cudaMemcpy(d_B, B, size, cudaMemcpyHostToDevice);
+  err = cudaMemcpy(d_B, B, size * sizeof(float), cudaMemcpyHostToDevice);
   CheckCUDAError(err);
-  err = cudaMemcpy(d_C, B, size, cudaMemcpyHostToDevice);
+  err = cudaMemcpy(d_C, B, size * sizeof(float), cudaMemcpyHostToDevice);
   CheckCUDAError(err);
   
   // Launch the Vector Add CUDA Kernel
@@ -66,8 +65,10 @@ void Add(const float *A, const float *B, float *C, int size) {
   err = cudaGetLastError();
   CheckCUDAError(err);
     
+  cudaThreadSynchronize();
+
   printf("Copy output data from the CUDA device to the host memory\n");
-  err = cudaMemcpy(C, d_C, size, cudaMemcpyDeviceToHost);
+  err = cudaMemcpy(C, d_C, size * sizeof(float), cudaMemcpyDeviceToHost);
   CheckCUDAError(err);
     
   CheckCUDAError(cudaFree(d_A));
